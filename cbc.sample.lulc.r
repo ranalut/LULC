@@ -52,7 +52,7 @@ if (do.hist=='y')
 # Backcast Data
 if (do.backcast=='y')
 {
-	rasterOptions(tmpdir='C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/')
+	rasterOptions(tmpdir='C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey3/')
 	gp.backcast <- list()
 
 	for (i in 1938:1992)
@@ -67,7 +67,7 @@ if (do.backcast=='y')
 		gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
 
 		# Remove all the temporary files for that year's calculations.  
-		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey',full.names=TRUE))
+		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey3',full.names=TRUE))
 		cat('done',i,'\n')
 		
 		save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.250m.cbc.r',the.radius,'m.rdata',sep=''))
