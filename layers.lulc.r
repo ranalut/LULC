@@ -13,6 +13,7 @@ layers.lulc <- function(file.in, the.crop, ag.fact, ag.fun)
 	{
 		r.crop <- raster(the.crop)
 		the.data <- crop(the.data, r.crop)
+		# plot(the.data); stop('cbw')
 		cat('cropped... ')
 	}
 	
@@ -20,6 +21,7 @@ layers.lulc <- function(file.in, the.crop, ag.fact, ag.fun)
 	if (is.na(ag.fact)==FALSE)
 	{
 		the.data <- aggregate(the.data, fact=ag.fact, fun=ag.fun)
+		# plot(the.data); stop('cbw')
 		cat('aggregated... ')
 	}
 	
