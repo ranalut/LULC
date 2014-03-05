@@ -8,10 +8,10 @@ source('layers.lulc.r')
 source('sample.lulc.brick.r')
 
 # Workspace
-drive <- 'z'
+drive <- 'z' # This ran faster on the server than my computer.
 workspace <- paste(drive,':/LULC',sep='')
 the.radius <- 48280 # 24140
-do.hist <- 		'n'
+do.hist <- 		'y'
 do.backcast <- 	'y'
 
 # Load and crop pts.
@@ -45,7 +45,7 @@ if (do.hist=='y')
 		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey',full.names=TRUE))
 		cat('done',i,'\n')
 		
-		save(historical,file=paste(workspace,'/Historical/gp.hist.250m.cbc.r48280m.rdata',sep=''))
+		save(historical,file=paste(workspace,'/Historical/gp.hist.250m.cbc.r',the.radius,'m.rdata',sep=''))
 	}
 }
 
@@ -70,7 +70,7 @@ if (do.backcast=='y')
 		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey3',full.names=TRUE))
 		cat('done',i,'\n')
 		
-		save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.250m.cbc.r48280m.rdata',sep=''))
+		save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.250m.cbc.r',the.radius,'m.rdata',sep=''))
 	}
 }
 
