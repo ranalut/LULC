@@ -1,24 +1,32 @@
 # rbind from a list and add columns
+source('add.col.r')
 
 rbind.lulc <- function(lulc.list, years, pts)
 {
 	the.names <- paste('y',years,sep='')
-	n <- seq(1,length(names(lulc.list)),1)
-	test <- names(lulc.list) %in% the.names
-	n <- n[test==TRUE]
-	the.data <- lulc.list[[n]]
+	the.data <- lulc.list
+	n <- dim(the.data[[1]])[1]
+	
+	for (i in 1:length(the.data))
+	{
+		the.data[[i]] <- add.col(in.data=the.data[[i]],ncols=seq(0,17,1))
+	}
+	# stop('cbw')
 	
 	for (i in 1:length(the.names))
 	{
-		the.data[[i]] <- data.frame(abbrev=pts$abbrev, count_yr=rep((years[i]-1900),dim(the.data)[1]),the.data[[i]])
+		the.data[[the.names[i]]] <- data.frame(abbrev=pts$abbrev, count_yr=rep((years[i]-1900),n),the.data[[the.names[i]]])
 	}
+	# return(the.data)
 	
-	output <- the.data[[1]]
+	output <- the.data[[the.names[1]]]
+	# cat(dim(output)[1],' ')
 	for (i in 2:length(the.names))
 	{
-		output <- rbind(output,the.data[[i]])
+		output <- rbind(output,the.data[[the.names[i]]])
+		# cat(dim(output)[1],' ')
 	}
-	return(as.data.fram(output))
+	return(as.data.frame(output))
 }
 
 
