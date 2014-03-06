@@ -1,5 +1,6 @@
 
 source('rbind.lulc.r')
+source('add.col.r')
 
 # Workspace and parameters
 drive <- 'z'
@@ -40,6 +41,11 @@ pa.bird.data <- merge(pt.yr,bird.data,by=c('abbrev','count_yr'),all.x=TRUE)
 print(dim(pa.bird.data))
 pa.bird.data$how_many[is.na(pa.bird.data$how_many)==TRUE] <- 0
 pa.bird.data$detect[is.na(pa.bird.data$detect)==TRUE] <- 0
+
+# Second add LULC data
+pa.bird.data <- merge(pa.bird.data, all.data, by=c('abbrev','count_yr'),all.x=TRUE)
+
+
 
 # Testing
 # write.csv(pa.bird.data, paste(workspace,'/test.csv',sep=''))
