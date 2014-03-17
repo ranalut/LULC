@@ -1,14 +1,14 @@
 
-spp.list.csv <- function(sci.name, code, outputFile)
+spp.list.csv <- function(code, code2name, outputFile)
 {
-	sci.name <- paste("ref_species.sci_name = '",sci.name,"'",sep='')
-	output <- data.frame(ScientificName=sci.name,Code=code)
-	write.csv(output,outputFile)
+	output <- read.csv(code2name)
+	output <- output[output$Code %in% code,]
+	write.csv(output,outputFile,row.names=FALSE)
 }
 
 spp <- read.csv('z:/lulc/gp_focal_spp_list.csv')
 spp.list.csv(
-	sci.name=spp$AOU54_SPECIES,
 	code=spp$BBL_ABBREV,
+	code2name="z:/CBC-Data/CBC Database Query/SpList_ScientificNames.csv",
 	outputFile='z:/CBC-Data/gp.focal.spp.csv'
 	)
