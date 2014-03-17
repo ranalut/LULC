@@ -6,9 +6,9 @@ workspace <- 'z:/CBC-Data/'
 library(RODBC)
 
 #Load a list of species to call
-SpTable=read.csv(paste(workspace,"SpList_Arid.csv",sep=''))
+SpTable=read.csv(paste(workspace,"gp.focal.spp.csv",sep=''))
 
-for (s in 1){ # 1:length(SpTable$Code)){
+for (s in 16:length(SpTable$Code)){
 
 #Load a list of species to call
 # SpTable=read.csv("SpList_Arid.csv")
@@ -26,7 +26,8 @@ loc_circle.circle_id = cnt_submission.circle_id FULL JOIN cnt_observation ON cnt
 cnt_observation.species_id = ref_species.species_id FULL JOIN cnt_effort_time_distance ON cnt_submission.submission_id = cnt_effort_time_distance.submission_id
 FULL JOIN cnt_effort_feeder_night ON cnt_submission.submission_id = cnt_effort_feeder_night.submission_id FULL JOIN ref_transportation ON
 cnt_effort_time_distance.trans_id = ref_transportation.trans_id FULL JOIN ref_dist_unit  ON cnt_effort_time_distance.distance_unit_id = ref_dist_unit.unit_id WHERE",
-paste(SpTable[s,1]), "AND CNT_SUBMISSION.COUNT_YR BETWEEN '66' AND '113'"))
+paste(SpTable[s,'ScientificName']), "AND CNT_SUBMISSION.COUNT_YR BETWEEN '66' AND '113'"))
+cat('complete sql...')
 
 CBC7=subset(CBC,CBC$subnational_code != "NA")
 sub <- data.frame(do.call('rbind', strsplit(as.character(CBC7$subnational_code),'-',fixed=TRUE)))
@@ -111,7 +112,8 @@ CBC_r0=merge(CBC1, ZeroCircles, by = "abbrev")
 CBC_r1=merge(CBC_r0, StrataData, by = "strata")
 
 #Print a table with the raw data
-write.csv(CBC_r1, paste(workspace,SpTable[s,2],"_test.csv",sep=""),row.names=FALSE)
+write.csv(CBC_r1, paste(workspace,SpTable[s,'Code'],".csv",sep=""),row.names=FALSE)
+cat('file written',SpTable[s,'Code'],'\n')
 
 #Close the connection
 odbcClose(channel)
