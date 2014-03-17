@@ -19,7 +19,7 @@ pt.yr <- read.csv(paste(workspace,'/CirclesByYear.csv',sep=''))
 cat('all pts in history',dim(pt.yr),'\n')
 pt.yr <- pt.yr[pt.yr$abbrev %in% cbc$abbrev,]
 cat('all pts in study area',dim(pt.yr),'\n')
-pt.yr <- pt.yr[pt.yr$count_yr <= 105,]
+pt.yr <- pt.yr[pt.yr$count_yr <= 105 & pt.yr$count_yr >= 66,]
 cat('all pts in study years',dim(pt.yr),'\n')
 # test <- SpatialPoints(pt.yr[,c('latitude','longitude')])
 # plot(test)
@@ -30,7 +30,9 @@ load(paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'
 all.data <- c(gp.backcast,historical)
 all.data <- rbind.lulc(lulc.list=all.data, years=seq(1966,2005,1), pts=cbc)
 cat('all data',dim(all.data),'\n')
-# Processes
+
+# Loop through species...
+spp <- read.csv('z:/lulc/gp_focal_spp_list.csv')
 
 species <- 'smlo'
 bird.data <- read.csv(paste(workspace,'/',species,'.csv',sep=''))
@@ -45,6 +47,7 @@ pa.bird.data$detect[is.na(pa.bird.data$detect)==TRUE] <- 0
 # Second add LULC data
 pa.bird.data <- merge(pa.bird.data, all.data, by=c('abbrev','count_yr'),all.x=TRUE)
 
+# Save for building models in the next step
 
 
 # Testing
