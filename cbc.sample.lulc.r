@@ -8,12 +8,12 @@ source('layers.lulc.r')
 source('sample.lulc.brick.r')
 
 # Workspace
-drive <- 'd' # This ran faster on the server than my computer.
+drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
-the.radius <- 48280 # 48280 # 24140
+the.radius <- 24140 # 48280 # 24140
 cell.size <- 250
 ag.factor <- 4
-do.hist <-		'y'
+do.hist <-		'n'
 do.backcast <-	'y'
 
 # Load and crop pts.
