@@ -1,15 +1,12 @@
 
-# Prediction Data
+# Prediction
 
-
-# Evaluate BRT models.
 library(dismo)
 library(gbm)
 library(tcltk2)
-
-source('train.test.data.r')
-source('model.eval.fxn.r')
-source('deviance.explained.r')
+source('layers.lulc.r')
+source('build.similar.raster.r')
+startTime <- Sys.time()
 
 # source('settings.r')
 # Workspace and parameters
@@ -23,15 +20,29 @@ ag.factors <- c(1,4) # 1 # 4
 # 1 is default parameters, 2 is increasing learning rate for most, decreasing for some.
 # 3 is adjusting complexity to keep learning rates < 0.01. 
 ver <- 2
+i <- 2005
+the.radius <- 24140
+ag.factor <- 4
 
-# Test and training datasets
-n <- 6822 # There are 6822 Records
-test.rows <- scan(file=paste(workspace,'/Models/gp.lulc.test.rows.v1.txt',sep=''),what=numeric())
-train.rows <- drop.test.rows(row.numbers=seq(1,n,1), test.rows=test.rows)
+lulc.data <- layers.lulc(
+			file.in=paste(workspace,'/Historical/conus_historical_y',i,'.img',sep=''),
+			the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+			ag.fact=ag.factor, # NA if no aggregate
+			ag.fun=modal # NA if no aggregate
+			)
+temp <- build.similar(file.name=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),value=36,var.name='hours')
+pred.data <- addLayer(lulc.data, temp)
+
+the.weights <- focalWeight(pred.data, d=the.radius, type='circle')
+pred.data.focal <- focal(pred.data, w=the.weights)
+
+endTime <- Sys.time()
+print(endTime-startTime)
+stop('cbw')
 
 spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
-output <- as.data.frame(matrix(rep(NA,dim(spp)[1]*length(the.radii)*length(ag.factors)),ncol=length(the.radii)*length(ag.factors)))
-col.names <- rep(NA,length(the.radii)*length(ag.factors))
+
+
 
 for (i in 1:length(spp$BBL_ABBREV)) # max is 22
 {
