@@ -48,7 +48,7 @@ for (i in 12:22) # 1:11 # 12:22 # length(spp$BBL_ABBREV)) # max is 22
 			cat('\nnstart BRT,',species)
 			cat(' points considered...',dim(the.data)[1],'\n')
 			# print(table(the.data$how_many))
-			brt.model <- gbm.step(data=the.data, gbm.x=c(7,11:25), gbm.y=9, family="poisson", tree.complexity=5, learning.rate=spp$LR[i], bag.fraction=0.5, verbose=FALSE)
+			brt.model <- gbm.step(data=the.data, gbm.x=c(7,11:28), gbm.y=9, family="poisson", tree.complexity=5, learning.rate=spp$LR[i], bag.fraction=0.5, verbose=FALSE)
 			cat('# trees = ',brt.model$n.trees,'\n')
 			save(brt.model,file=paste(workspace,'/Models/gp.lulc.brt.3.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
 			cat('\nend BRT',species,'############################\n')
