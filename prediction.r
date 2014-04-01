@@ -21,8 +21,8 @@ ag.factors <- c(1,4) # 1 # 4
 # 3 is adjusting complexity to keep learning rates < 0.01. 
 ver <- 2
 i <- 2005
-the.radius <- 24140
-ag.factor <- 4
+the.radius <- the.radii[2]
+ag.factor <- ag.factors[2]
 
 lulc.data <- layers.lulc(
 			file.in=paste(workspace,'/Historical/conus_historical_y',i,'.img',sep=''),
@@ -38,6 +38,7 @@ print(Sys.time()-startTime)
 the.weights <- focalWeight(pred.data, d=the.radius, type='circle')
 pred.data <- unstack(pred.data)
 pred.data.focal <- list()
+
 for (n in 1:length(pred.data))
 {
 	pred.data.focal[[n]] <- focal(pred.data[[n]], w=the.weights)
@@ -45,43 +46,65 @@ for (n in 1:length(pred.data))
 }
 
 pred.data.focal <- brick(pred.data.focal)
+
+the.mask <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992_',ag.factor*cell.size,'m.tif',sep=''))
+# if (ag.factor!=1) { the.mask <- aggregate(the.mask, fact=ag.factor, fun=modal) }
+pred.data.focal <- mask(x=pred.data.focal, mask=the.mask, maskvalue=0)
 endTime <- Sys.time()
 print(endTime-startTime)
-stop('cbw')
+# stop('cbw')
 
-spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
+names(pred.data.focal) <- c(paste('X',seq(0,16,1),sep=''),'hours')
 
+# spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
 
-
-for (i in 1:length(spp$BBL_ABBREV)) # max is 22
+spp <- c('HASP','WEME','MCLO','AMKE','RTHA','FEHA','LEOW')
+for (n in 1:length(spp))
 {
-	counter <- 0
+	startTime <- Sys.time()
+	species <- spp[n]
+	load(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
 	
-	for (n in 1:2)
-	{
-		for (j in 1:2)
-		{
-			the.radius <- the.radii[n]
-			ag.factor <- ag.factors[j]
-			species <- spp$BBL_ABBREV[i]
-			
-			if (file.exists(paste(workspace,'/Models/gp.lulc.brt.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))==FALSE) { next(j) }
-			
-			load(paste(workspace,'/Species/gp.lulc.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
-			load(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
-
-			evaluation <- model.eval(the.model=brt.model, covariates=pa.bird.data[,c(7,11:25)], test.rows=test.rows, obs=pa.bird.data[,9], spp=species)
-			
-			names(evaluation) <- c('dev.exp.cv','dev.exp.test','cor.cv','cor.test')
-			save(evaluation,file=paste(workspace,'/Models/gp.lulc.eval.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
-			
-			counter <- counter + 1
-			output[i,counter] <- evaluation[['dev.exp.test']]
-			col.names[counter] <- paste('r',the.radius,'m.',ag.factor*cell.size,'m',sep='')
-			
-			# cat('\nend nass',species,'############################\n')
-			# stop('cbw')
-		}
-	}
+	prediction <- predict(pred.data.focal, brt.model, n.trees=brt.model$n.trees, type='response', progress='window', na.rm=TRUE)
+	prediction <- round(prediction,3)
+	plot(prediction, main=species)
+	
+	writeRaster(prediction,paste(workspace,'/Predictions/gp.lulc.v',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
+	
+	print(Sys.time()-startTime)
 }
+
+
+
+# for (i in 1:length(spp$BBL_ABBREV)) # max is 22
+# {
+	# counter <- 0
+	
+	# for (n in 1:2)
+	# {
+		# for (j in 1:2)
+		# {
+			# the.radius <- the.radii[n]
+			# ag.factor <- ag.factors[j]
+			# species <- spp$BBL_ABBREV[i]
+			
+			# if (file.exists(paste(workspace,'/Models/gp.lulc.brt.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))==FALSE) { next(j) }
+			
+			# load(paste(workspace,'/Species/gp.lulc.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
+			# load(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
+
+			# evaluation <- model.eval(the.model=brt.model, covariates=pa.bird.data[,c(7,11:25)], test.rows=test.rows, obs=pa.bird.data[,9], spp=species)
+			
+			# names(evaluation) <- c('dev.exp.cv','dev.exp.test','cor.cv','cor.test')
+			# save(evaluation,file=paste(workspace,'/Models/gp.lulc.eval.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
+			
+			# counter <- counter + 1
+			# output[i,counter] <- evaluation[['dev.exp.test']]
+			# col.names[counter] <- paste('r',the.radius,'m.',ag.factor*cell.size,'m',sep='')
+			
+			# # cat('\nend nass',species,'############################\n')
+			# # stop('cbw')
+		# }
+	# }
+# }
 
