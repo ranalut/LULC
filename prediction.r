@@ -32,10 +32,18 @@ lulc.data <- layers.lulc(
 			)
 temp <- build.similar(file.name=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),value=36,var.name='hours')
 pred.data <- addLayer(lulc.data, temp)
+print(Sys.time()-startTime)
 
 the.weights <- focalWeight(pred.data, d=the.radius, type='circle')
-pred.data.focal <- focal(pred.data, w=the.weights)
+pred.data <- unstack(pred.data)
+pred.data.focal <- list()
+for (n in 1:length(pred.data))
+{
+	pred.data.focal[[n]] <- focal(pred.data[[n]], w=the.weights)
+	cat('done ',n,' ',Sys.time()-startTime,'\n')
+}
 
+pred.data.focal <- brick(pred.data.focal)
 endTime <- Sys.time()
 print(endTime-startTime)
 stop('cbw')
