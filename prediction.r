@@ -30,7 +30,8 @@ lulc.data <- layers.lulc(
 			ag.fact=ag.factor, # NA if no aggregate
 			ag.fun=modal # NA if no aggregate
 			)
-temp <- build.similar(file.name=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),value=36,var.name='hours')
+temp <- unstack(lulc.data)
+temp <- build.similar(file.name=temp[[1]],value=36,var.name='hours')
 pred.data <- addLayer(lulc.data, temp)
 print(Sys.time()-startTime)
 
