@@ -17,9 +17,10 @@ cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
 
 # Versions
-# 1 is default parameters, 2 is increasing learning rate for most, decreasing for some.
+# 1 (really none) is default parameters, lr = 0.01, tc = 5
+# 2 is increasing learning rate for most (0.03) , decreasing for some (0.005).
 # 3 is adjusting complexity to keep learning rates < 0.01. 
-ver <- 2
+ver <- 3
 
 # Test and training datasets
 n <- 6822 # There are 6822 Records
