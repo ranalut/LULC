@@ -21,10 +21,6 @@ lulc.data <- layers.lulc(
 			ag.fact=ag.factor, # NA if no aggregate
 			ag.fun=modal # NA if no aggregate
 			)
-temp <- unstack(lulc.data)
-temp <- build.similar(file.name=temp[[1]],value=36,var.name='hours')
-pred.data <- addLayer(lulc.data, temp)
-print(Sys.time()-startTime)
 
 the.weights <- focalWeight(pred.data, d=the.radius, type='circle')
 pred.data <- unstack(pred.data)
@@ -38,11 +34,18 @@ for (n in 1:length(pred.data))
 
 pred.data.focal <- brick(pred.data.focal)
 print(pred.data.focal)
-print(names(print.data.focal))
-endTime <- Sys.time()
-print(endTime-startTime)
-# stop('cbw')
+print(names(pred.data.focal))
+print(Sys.time()-startTime)
 
-# names(pred.data.focal) <- c(paste('X',seq(1,17,1),sep=''),'hours')
+temp <- unstack(pred.data.focal)
+if (dim(pred.data.focal)[3] <= 17)
+{
+	temp1 <- build.similar(file.name=temp[[1]],value=0,var.name='X0')
+	pred.data.focal <- addLayer(pred.data.focal, temp1)
+}
+temp1 <- build.similar(file.name=temp[[1]],value=36,var.name='hours')
+pred.data.focal <- addLayer(pred.data.focal, temp1)
+
+names(pred.data.focal) <- c(paste('X',seq(1,17,1),sep=''),'X0','hours')
 
 writeRaster(pred.data.focal,paste(workspace,'/Predictions/gp.lulc.pred.data.r',the.radius,'m.',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
