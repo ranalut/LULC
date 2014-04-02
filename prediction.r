@@ -26,7 +26,7 @@ ag.factor <- ag.factors[2]
 # ==========================================================================
 
 # Load prediction data
-pred.data.focal <- brick(paste(workspace,'/Predictions/gp.lulc.pred.data.r',the.radius,'m.',ag.factor*cell.size,'m.y',year,'rdata',sep=''))
+pred.data.focal <- brick(paste(workspace,'/Predictions/gp.lulc.pred.data.r',the.radius,'m.',ag.factor*cell.size,'m.y',year,'.tif',sep=''))
 
 # spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
 spp <- c('HASP','WEME','AMKE','RTHA','FEHA','LEOW')
@@ -36,6 +36,7 @@ for (n in 1:length(spp))
 	startTime <- Sys.time()
 	species <- spp[n]
 	load(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
+	names(pred.data.focal) <- c(paste('X',seq(1,17,1),sep=''),'X0','hours')
 	
 	prediction <- predict(pred.data.focal, brt.model, n.trees=brt.model$n.trees, type='response', progress='window', na.rm=TRUE)
 	prediction <- round(prediction,3)
