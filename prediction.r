@@ -9,27 +9,28 @@ startTime <- Sys.time()
 
 # source('settings.r')
 # Workspace and parameters
-drive <- 'z'
+drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
-the.radii <- c(24140,48280) # 48280 # 24140
+the.radii <- c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
 
 # Versions
 # 1 is default parameters, 2 is increasing learning rate for most, decreasing for some.
 # 3 is adjusting complexity to keep learning rates < 0.01. 
-ver <- 2
-i <- 2005
-the.radius <- the.radii[2]
+ver <- 5
+year <- 2005
+the.radius <- the.radii[1]
 ag.factor <- ag.factors[2]
 
 # ==========================================================================
 
 # Load prediction data
+pred.data.focal <- brick(paste(workspace,'/Predictions/gp.lulc.pred.data.r',the.radius,'m.',ag.factor*cell.size,'m.y',year,'rdata',sep=''))
 
 # spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
+spp <- c('HASP','WEME','AMKE','RTHA','FEHA','LEOW')
 
-spp <- c('HASP','WEME','MCLO','AMKE','RTHA','FEHA','LEOW')
 for (n in 1:length(spp))
 {
 	startTime <- Sys.time()
@@ -40,12 +41,11 @@ for (n in 1:length(spp))
 	prediction <- round(prediction,3)
 	plot(prediction, main=species)
 	
-	# the.mask <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992_',ag.factor*cell.size,'m.tif',sep=''))
-	# # if (ag.factor!=1) { the.mask <- aggregate(the.mask, fact=ag.factor, fun=modal) }
-	# pred.data.focal <- mask(x=pred.data.focal, mask=the.mask, maskvalue=0)
-
+	the.mask <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992_',ag.factor*cell.size,'m.tif',sep=''))
+	# if (ag.factor!=1) { the.mask <- aggregate(the.mask, fact=ag.factor, fun=modal) }
+	prediction <- mask(x=prediction, mask=the.mask, maskvalue=0)
 	
-	writeRaster(prediction,paste(workspace,'/Predictions/gp.lulc.v',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
+	writeRaster(prediction,paste(workspace,'/Predictions/gp.lulc.v',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.y',year,'.tif',sep=''), overwrite=TRUE)
 	
 	print(Sys.time()-startTime)
 }
