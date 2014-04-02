@@ -1,3 +1,6 @@
+library(rgdal)
+library(raster)
+library(sp)
 
 source('rbind.lulc.r')
 source('add.col.r')
@@ -5,9 +8,10 @@ source('add.col.r')
 # Workspace and parameters
 drive <- 'z'
 workspace <- paste(drive,':/LULC',sep='')
-the.radii <- c(24140,48280) # 48280 # 24140
+the.radii <- c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
+no.backcast <- 'y'
 
 # Load and crop CBC pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -25,9 +29,9 @@ cat('all pts in study years',dim(pt.yr),'\n')
 # test <- SpatialPoints(pt.yr[,c('latitude','longitude')])
 # plot(test)
 
-for (n in 1:2)
+for (n in 1) #1:2
 {
-	for (j in 1:2)
+	for (j in 2) #1:2
 	{
 	
 		the.radius <- the.radii[n]
@@ -35,9 +39,18 @@ for (n in 1:2)
 
 		# Load LULC data
 		load(paste(workspace,'/Historical/gp.hist.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
-		load(paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
-		all.data <- c(gp.backcast,historical)
-		all.data <- rbind.lulc(lulc.list=all.data, years=seq(1966,2005,1), pts=cbc)
+		
+		if (no.backcast=='y')
+		{
+			all.data <- historical
+			all.data <- rbind.lulc(lulc.list=all.data, years=seq(1992,2005,1), pts=cbc)
+		}
+		else
+		{
+			load(paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
+			all.data <- c(gp.backcast,historical)
+			all.data <- rbind.lulc(lulc.list=all.data, years=seq(1966,2005,1), pts=cbc)	
+		}
 		cat('all data',dim(all.data),'\n')
 
 		# Loop through species...
