@@ -12,7 +12,7 @@ source('deviance.explained.r')
 # Workspace and parameters
 drive <- 'z'
 workspace <- paste(drive,':/LULC',sep='')
-the.radii <- c(24140,48280) # 48280 # 24140
+the.radii <- c(24140,48280) # c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
 
@@ -20,22 +20,23 @@ ag.factors <- c(1,4) # 1 # 4
 # 1 (really none) is default parameters, lr = 0.01, tc = 5
 # 2 is increasing learning rate for most (0.03) , decreasing for some (0.005).
 # 3 is adjusting complexity to keep learning rates < 0.01. 
-ver <- 3
+ver <- 4
+no.backcast <- 'n'
 
 # Test and training datasets
 n <- 6822 # There are 6822 Records
 test.rows <- scan(file=paste(workspace,'/Models/gp.lulc.test.rows.v1.txt',sep=''),what=numeric())
 train.rows <- drop.test.rows(row.numbers=seq(1,n,1), test.rows=test.rows)
 
-spp <- read.csv('z:/lulc/gp_focal_spp_list.csv', stringsAsFactors=FALSE, row.names=1)
+spp <- read.csv(paste('z:/lulc/gp_focal_spp_list_v',ver,'.csv',sep=''), stringsAsFactors=FALSE, row.names=1)
 output <- as.data.frame(matrix(rep(NA,dim(spp)[1]*length(the.radii)*length(ag.factors)),ncol=length(the.radii)*length(ag.factors)))
 col.names <- rep(NA,length(the.radii)*length(ag.factors))
 
-for (i in 1:length(spp$BBL_ABBREV)) # max is 22
+for (i in 1:length(spp$BBL_ABBREV)) # c(1,2,5:21) # 1:length(spp$BBL_ABBREV) # max is 22
 {
 	counter <- 0
 	
-	for (n in 1:2)
+	for (n in 1:2) # 1:3
 	{
 		for (j in 1:2)
 		{
@@ -43,13 +44,24 @@ for (i in 1:length(spp$BBL_ABBREV)) # max is 22
 			ag.factor <- ag.factors[j]
 			species <- spp$BBL_ABBREV[i]
 			
-			if (file.exists(paste(workspace,'/Models/gp.lulc.brt.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))==FALSE) { next(j) }
+			if (file.exists(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))==FALSE) { cat('missing... ',species,' ',the.radius,' ',ag.factor*cell.size,'\n'); next(j) }
 			
 			load(paste(workspace,'/Species/gp.lulc.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
 			load(paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
-
-			evaluation <- model.eval(the.model=brt.model, covariates=pa.bird.data[,c(7,11:25)], test.rows=test.rows, obs=pa.bird.data[,9], spp=species)
+			cat('loaded... ',species,' ',the.radius,' ',ag.factor*cell.size,'\n')
 			
+			if (no.backcast=='y')
+			{
+				covariates <- pa.bird.data[test.rows,]
+				covariates <- covariates[covariates$count_yr >= 92,c(7,11:28)]
+				obs <- pa.bird.data[test.rows,]
+				obs <- obs[obs$count_yr >= 92,9]
+				evaluation <- model.eval(the.model=brt.model, covariates=covariates, obs=obs, spp=species)
+			}
+			else
+			{
+				evaluation <- model.eval(the.model=brt.model, covariates=pa.bird.data[test.rows,c(7,11:28)], obs=pa.bird.data[test.rows,9], spp=species)
+			}
 			names(evaluation) <- c('dev.exp.cv','dev.exp.test','cor.cv','cor.test')
 			save(evaluation,file=paste(workspace,'/Models/gp.lulc.eval.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
 			
@@ -62,7 +74,7 @@ for (i in 1:length(spp$BBL_ABBREV)) # max is 22
 		}
 	}
 }
-
+print(output)
 temp <- t(output)
 output <- data.frame(spp[,c(1:3,6)],output)
 colnames(output) <- c(colnames(output)[1:4],col.names)
@@ -72,5 +84,5 @@ colnames(temp) <- output$BBL_ABBREV
 barplot(temp, ylim=c(0,1), legend.text=col.names, args.legend=list(x=1,y=1,bty='n', horiz=TRUE), beside=TRUE)
 
 png(paste(workspace,'/Models/gp.lulc.eval.',ver,'.png',sep=''),width=1200)
-	barplot(temp, ylim=c(0,1), legend.text=col.names, args.legend=list(x=100,y=1,bty='n', horiz=TRUE), beside=TRUE)
+	barplot(temp, ylim=c(0,1), legend.text=col.names, args.legend=list(x=100,y=1,bty='n', horiz=TRUE), beside=TRUE, ylab='proportion of deviance explained')
 dev.off()
