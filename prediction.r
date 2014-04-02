@@ -40,6 +40,11 @@ for (n in 1:length(spp))
 	prediction <- round(prediction,3)
 	plot(prediction, main=species)
 	
+	# the.mask <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992_',ag.factor*cell.size,'m.tif',sep=''))
+	# # if (ag.factor!=1) { the.mask <- aggregate(the.mask, fact=ag.factor, fun=modal) }
+	# pred.data.focal <- mask(x=pred.data.focal, mask=the.mask, maskvalue=0)
+
+	
 	writeRaster(prediction,paste(workspace,'/Predictions/gp.lulc.v',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
 	
 	print(Sys.time()-startTime)
