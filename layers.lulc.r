@@ -18,7 +18,7 @@ layers.lulc <- function(file.in, the.crop, ag.fact, ag.fun)
 	}
 	
 	# Aggregate data
-	if (is.na(ag.fact)==FALSE)
+	if (ag.fact > 1)
 	{
 		the.data <- aggregate(the.data, fact=ag.fact, fun=ag.fun)
 		# plot(the.data); stop('cbw')
