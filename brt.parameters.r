@@ -30,7 +30,7 @@ for (i in 1:length(spp$BBL_ABBREV))
 			ag.factor <- ag.factors[j]
 			if (species%in%'INBU') { next(j); cat(species,'no BRT\n') }
 		
-			load(paste(workspace,'/Models/gp.lulc.brt.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
+			load(paste(workspace,'/Models/gp.lulc.brt.2.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
 			counter <- counter + 1
 			output[i,counter] <- brt.model$n.trees
 			col.names[counter] <- paste('r',the.radius,'m.',ag.factor*cell.size,'m',sep='')
@@ -44,6 +44,6 @@ for (i in 1:length(spp$BBL_ABBREV))
 colnames(output) <- col.names
 
 spp <- cbind(spp,learning.rate, complexity, output)
-write.csv(spp, 'z:/lulc/gp_focal_spp_list_v1.csv')
+write.csv(spp, 'z:/lulc/gp_focal_spp_list_v2.csv')
 
 
