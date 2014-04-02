@@ -2,17 +2,17 @@
 # Prediction
 library(dismo)
 library(gbm)
-library(tcltk2)
+# library(tcltk2)
 source('layers.lulc.r')
 source('build.similar.raster.r')
 startTime <- Sys.time()
 
 # Workspace and parameters
-drive <- 'z'
+drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
 cell.size <- 250
 year <- 2005
-the.radius <- 24140 # 48280
+the.radius <- 12070 # 24140 # 48280
 ag.factor <- 4 # 1 # 4
 
 lulc.data <- layers.lulc(
