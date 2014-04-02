@@ -10,11 +10,11 @@ source('sample.lulc.brick.r')
 # Workspace
 drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
-the.radius <- 24140 # 48280 # 24140
+the.radius <- 12070 # 24140 # 48280 # 24140
 cell.size <- 250
-ag.factor <- 4
-do.hist <-		'n'
-do.backcast <-	'y'
+ag.factor <- NA # 4
+do.hist <-		'y'
+do.backcast <-	'n'
 
 # Load and crop pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
