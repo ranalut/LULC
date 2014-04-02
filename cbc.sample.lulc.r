@@ -12,7 +12,7 @@ drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
 the.radius <- 12070 # 24140 # 48280 # 24140
 cell.size <- 250
-ag.factor <- NA # 4
+ag.factor <- 4 # 4 # NA
 do.hist <-		'y'
 do.backcast <-	'n'
 
