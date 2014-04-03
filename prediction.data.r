@@ -29,6 +29,8 @@ pred.data.focal <- list()
 for (n in 1:length(pred.data))
 {
 	pred.data.focal[[n]] <- focal(pred.data[[n]], w=the.weights)
+	# Need to change this so that NAs are dealt with properly and there's no buffers around NAs.  Use mean.excl.na()
+	
 	cat('done ',n,' ',Sys.time()-startTime,'\n')
 }
 
