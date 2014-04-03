@@ -43,7 +43,12 @@ if (do.hist=='y')
 			ag.fun=modal # NA if no aggregate
 			)
 		
+		########################################################
+		# Save these for future use as multi-band tifs.  See predict data.
+		#########################################################
+		
 		historical[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
+		# This automatically deals with NAs, unlike focal.
 
 		# Remove all the temporary files for that year's calculations.  
 		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey',full.names=TRUE))
@@ -62,13 +67,19 @@ if (do.backcast=='y')
 	for (i in 1966:1992) # 1938:1992
 	{
 		list.name <- paste('y',i,sep='')
-		
+		###############################################################
+		# Need to convert X0 into NAs.  
+		###############################################################
 		lulc.data <- layers.lulc(
 			file.in=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''),
 			the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
 			ag.fact=4, # NA if no aggregate
 			ag.fun=modal # NA if no aggregate
 			)
+		
+		########################################################
+		# Save these for future use as multi-band tifs.  See predict data.
+		#########################################################
 		
 		gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
 
