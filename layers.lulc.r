@@ -2,10 +2,10 @@ library(raster)
 library(sp)
 
 # Functions
-layers.lulc <- function(file.in, the.crop, ag.fact, ag.fun)
+layers.lulc <- function(raster.in, the.crop, ag.fact, ag.fun)
 {
 	# Load LULC data.
-	the.data <- raster(file.in)
+	the.data <- raster.in
 	cat('raster loaded... ')
 	
 	# Crop data
