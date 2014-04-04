@@ -37,7 +37,7 @@ for (k in 1:2)
 	if (do.hist=='y')
 	{
 		rasterOptions(tmpdir=r.raster.temp) 
-		list.of.lists <- list()
+		list.of.lists <- list(ag1=list(),ag2=list()) # Match to ag.factor length.
 		historical <- list()
 
 		for (i in 1992:2005)
@@ -49,8 +49,8 @@ for (k in 1:2)
 			lulc.data <- layers.lulc(
 				raster.in=temp,
 				the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-				ag.fact=ag.factor, # NA if no aggregate
-				ag.fun=modal # NA if no aggregate
+				ag.fact=ag.factor,
+				ag.fun=modal
 				)
 			
 			writeRaster(lulc.data,paste(workspace,'/Historical/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
@@ -72,7 +72,7 @@ for (k in 1:2)
 	if (do.backcast=='y')
 	{
 		rasterOptions(tmpdir=r.raster.temp)
-		list.of.lists <- list()
+		list.of.lists <- list(ag1=list(),ag2=list()) # Match to ag.factor length.
 		gp.backcast <- list()
 
 		for (i in 1966:1992) # 1938:1992
@@ -86,8 +86,8 @@ for (k in 1:2)
 			lulc.data <- layers.lulc(
 				raster.in=temp,
 				the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-				ag.fact=4, # NA if no aggregate
-				ag.fun=modal # NA if no aggregate
+				ag.fact=ag.factor,
+				ag.fun=modal
 				)
 			
 			writeRaster(lulc.data,paste(workspace,'/gp_backcast_1938_1992/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
