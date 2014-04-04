@@ -27,76 +27,80 @@ cbc <- cbc[is.na(test)==FALSE & test!=0,]
 # stop('cbw')
 
 # Processes
-for (n in 2) #1:2
+
+for (k in 1:2)
 {
-	for (k in 1:2)
+	ag.factor <- ag.factors[k]
+	cat('factor',ag.factor,'\n')
+	
+	# Historical Data
+	if (do.hist=='y')
 	{
-		the.radius <- the.radii[n]
-		ag.factor <- ag.factors[k]
-		cat('r',the.radius,'factor',ag.factor,'\n')
-		
-		# Historical Data
-		if (do.hist=='y')
+		rasterOptions(tmpdir=r.raster.temp) 
+		historical <- list()
+
+		for (i in 1992:2005)
 		{
-			rasterOptions(tmpdir=r.raster.temp) 
-			historical <- list()
+			list.name <- paste('y',i,sep='')
+			
+			temp <- raster(paste(workspace,'/historical/conus_historical_y',i,'.img',sep=''))
+			
+			lulc.data <- layers.lulc(
+				raster.in=temp,
+				the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+				ag.fact=ag.factor, # NA if no aggregate
+				ag.fun=modal # NA if no aggregate
+				)
+			
+			writeRaster(lulc.data,paste(workspace,'/Historical/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
 
-			for (i in 1992:2005)
+			for (n in 1:2)
 			{
-				list.name <- paste('y',i,sep='')
-				
-				temp <- raster(paste(workspace,'/historical/conus_historical_y',i,'.img',sep=''))
-				
-				lulc.data <- layers.lulc(
-					raster.in=temp,
-					the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-					ag.fact=ag.factor, # NA if no aggregate
-					ag.fun=modal # NA if no aggregate
-					)
-				
-				writeRaster(lulc.data,paste(workspace,'/Historical/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
-
+				the.radius <- the.radii[n]
 				historical[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE) # This automatically deals with NAs, unlike focal.
 				
 				save(historical,file=paste(workspace,'/Historical/gp.hist.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
-				
-				# Remove all the temporary files for that year's calculations.  
-				file.remove(dir(r.raster.temp,full.names=TRUE))
-				cat('done',i,'\n')
 			}
+			# Remove all the temporary files for that year's calculations.  
+			file.remove(dir(r.raster.temp,full.names=TRUE))
+			cat('done',i,'\n')
 		}
+	}
 
-		# Backcast Data
-		if (do.backcast=='y')
+	# Backcast Data
+	if (do.backcast=='y')
+	{
+		rasterOptions(tmpdir=r.raster.temp)
+		gp.backcast <- list()
+
+		for (i in 1966:1992) # 1938:1992
 		{
-			rasterOptions(tmpdir=r.raster.temp)
-			gp.backcast <- list()
-
-			for (i in 1966:1992) # 1938:1992
+			list.name <- paste('y',i,sep='')
+			
+			temp <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''))
+			temp[temp==0] <- NA
+			# plot(temp); stop()
+			
+			lulc.data <- layers.lulc(
+				raster.in=temp,
+				the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+				ag.fact=4, # NA if no aggregate
+				ag.fun=modal # NA if no aggregate
+				)
+			
+			writeRaster(lulc.data,paste(workspace,'/gp_backcast_1938_1992/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
+			
+			for (n in 1:2)
 			{
-				list.name <- paste('y',i,sep='')
-				
-				temp <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''))
-				temp[temp==0] <- NA
-				# plot(temp); stop()
-				
-				lulc.data <- layers.lulc(
-					raster.in=temp,
-					the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-					ag.fact=4, # NA if no aggregate
-					ag.fun=modal # NA if no aggregate
-					)
-				
-				writeRaster(lulc.data,paste(workspace,'/gp_backcast_1938_1992/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
-				
+				the.radius <- the.radii[n]
 				gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
-				
+			
 				save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
-				
-				# Remove all the temporary files for that year's calculations.  
-				file.remove(dir(r.raster.temp,full.names=TRUE))
-				cat('done',i,'\n')
 			}
+			# Remove all the temporary files for that year's calculations.  
+			file.remove(dir(r.raster.temp,full.names=TRUE))
+			cat('done',i,'\n')
 		}
 	}
 }
+
