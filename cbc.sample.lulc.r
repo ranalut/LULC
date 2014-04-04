@@ -5,16 +5,17 @@ library(sp)
 
 # Functions
 source('layers.lulc.r')
-source('sample.lulc.brick.r')
+# source('sample.lulc.brick.r')
 
 # Workspace
 drive <- 'd'
 workspace <- paste(drive,':/LULC',sep='')
-the.radius <- 12070 # 24140 # 48280 # 24140
+the.radii <- c(12070,24140) # 12070 # 48280 # 24140
 cell.size <- 250
-ag.factor <- 4 # 4 # NA
-do.hist <-		'y'
-do.backcast <-	'n'
+ag.factors <- c(1,4) # 4 # NA
+do.hist <-		'n'
+do.backcast <-	'y'
+r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/'
 
 # Load and crop pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -26,68 +27,75 @@ cbc <- cbc[is.na(test)==FALSE & test!=0,]
 # stop('cbw')
 
 # Processes
-# Historical Data
-if (do.hist=='y')
+for (n in 1:2)
 {
-	rasterOptions(tmpdir='C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/') 
-	historical <- list()
-
-	for (i in 1992:2005)
+	for (k in 1:2)
 	{
-		list.name <- paste('y',i,sep='')
+		the.radius <- the.radii[n]
+		ag.factor <- ag.factors[k]
 		
-		lulc.data <- layers.lulc(
-			file.in=paste(workspace,'/Historical/conus_historical_y',i,'.img',sep=''),
-			the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-			ag.fact=ag.factor, # NA if no aggregate
-			ag.fun=modal # NA if no aggregate
-			)
-		
-		########################################################
-		# Save these for future use as multi-band tifs.  See predict data.
-		#########################################################
-		
-		historical[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
-		# This automatically deals with NAs, unlike focal.
+		# Historical Data
+		if (do.hist=='y')
+		{
+			rasterOptions(tmpdir=r.raster.temp) 
+			historical <- list()
 
-		# Remove all the temporary files for that year's calculations.  
-		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey',full.names=TRUE))
-		cat('done',i,'\n')
-		
-		save(historical,file=paste(workspace,'/Historical/gp.hist.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
+			for (i in 1992:2005)
+			{
+				list.name <- paste('y',i,sep='')
+				
+				temp <- raster(paste(workspace,'/historical/gp_lcyear_',i,'.tif',sep=''))
+				
+				lulc.data <- layers.lulc(
+					raster.in=temp,
+					the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+					ag.fact=ag.factor, # NA if no aggregate
+					ag.fun=modal # NA if no aggregate
+					)
+				
+				writeRaster(lulc.data,paste(workspace,'/Historical/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
+
+				historical[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE) # This automatically deals with NAs, unlike focal.
+				
+				save(historical,file=paste(workspace,'/Historical/gp.hist.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
+				
+				# Remove all the temporary files for that year's calculations.  
+				file.remove(dir(r.raster.temp,full.names=TRUE))
+				cat('done',i,'\n')
+			}
+		}
+
+		# Backcast Data
+		if (do.backcast=='y')
+		{
+			rasterOptions(tmpdir=r.raster.temp)
+			gp.backcast <- list()
+
+			for (i in 1966:1992) # 1938:1992
+			{
+				list.name <- paste('y',i,sep='')
+				
+				temp <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''))
+				temp[temp==0] <- NA
+				plot(temp); stop()
+				
+				lulc.data <- layers.lulc(
+					raster.in=temp,
+					the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+					ag.fact=4, # NA if no aggregate
+					ag.fun=modal # NA if no aggregate
+					)
+				
+				writeRaster(lulc.data,paste(workspace,'/gp_backcast_1938_1992/gp.lulc.brick.r',ag.factor*cell.size,'m.y',i,'.tif',sep=''), overwrite=TRUE)
+				
+				gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
+				
+				save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
+				
+				# Remove all the temporary files for that year's calculations.  
+				file.remove(dir(r.raster.temp,full.names=TRUE))
+				cat('done',i,'\n')
+			}
+		}
 	}
 }
-
-# Backcast Data
-if (do.backcast=='y')
-{
-	rasterOptions(tmpdir='C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/')
-	gp.backcast <- list()
-
-	for (i in 1966:1992) # 1938:1992
-	{
-		list.name <- paste('y',i,sep='')
-		###############################################################
-		# Need to convert X0 into NAs.  
-		###############################################################
-		lulc.data <- layers.lulc(
-			file.in=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''),
-			the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-			ag.fact=4, # NA if no aggregate
-			ag.fun=modal # NA if no aggregate
-			)
-		
-		########################################################
-		# Save these for future use as multi-band tifs.  See predict data.
-		#########################################################
-		
-		gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
-
-		# Remove all the temporary files for that year's calculations.  
-		file.remove(dir('c:/users/cwilsey/appdata/local/temp/r_raster_cwilsey',full.names=TRUE))
-		cat('done',i,'\n')
-		
-		save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
-	}
-}
-
