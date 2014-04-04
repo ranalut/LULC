@@ -37,6 +37,7 @@ for (k in 1:2)
 	if (do.hist=='y')
 	{
 		rasterOptions(tmpdir=r.raster.temp) 
+		list.of.lists <- list()
 		historical <- list()
 
 		for (i in 1992:2005)
@@ -57,8 +58,8 @@ for (k in 1:2)
 			for (n in 1:2)
 			{
 				the.radius <- the.radii[n]
-				historical[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE) # This automatically deals with NAs, unlike focal.
-				
+				list.of.lists[[n]][[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE) # This automatically deals with NAs, unlike focal.
+				historical <- list.of.lists[[n]]
 				save(historical,file=paste(workspace,'/Historical/gp.hist.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
 			}
 			# Remove all the temporary files for that year's calculations.  
@@ -71,6 +72,7 @@ for (k in 1:2)
 	if (do.backcast=='y')
 	{
 		rasterOptions(tmpdir=r.raster.temp)
+		list.of.lists <- list()
 		gp.backcast <- list()
 
 		for (i in 1966:1992) # 1938:1992
@@ -93,8 +95,8 @@ for (k in 1:2)
 			for (n in 1:2)
 			{
 				the.radius <- the.radii[n]
-				gp.backcast[[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
-			
+				list.of.lists[[n]][[list.name]] <- extract(lulc.data, cbc, buffer=the.radius, fun=mean, na.rm=TRUE)
+				gp.backcast <- list.of.lists[[n]]
 				save(gp.backcast,file=paste(workspace,'/gp_backcast_1938_1992/gp.backcast.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.rdata',sep=''))
 			}
 			# Remove all the temporary files for that year's calculations.  
