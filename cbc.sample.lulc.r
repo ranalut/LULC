@@ -13,7 +13,7 @@ workspace <- paste(drive,':/LULC',sep='')
 the.radii <- c(12070,24140) # 12070 # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 4 # NA
-do.hist <-		'n'
+do.hist <-		'y'
 do.backcast <-	'y'
 r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/'
 
@@ -27,7 +27,7 @@ cbc <- cbc[is.na(test)==FALSE & test!=0,]
 # stop('cbw')
 
 # Processes
-for (n in 1:2)
+for (n in 1) #1:2
 {
 	for (k in 1:2)
 	{
@@ -77,7 +77,7 @@ for (n in 1:2)
 				
 				temp <- raster(paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_',i,'.tif',sep=''))
 				temp[temp==0] <- NA
-				plot(temp); stop()
+				# plot(temp); stop()
 				
 				lulc.data <- layers.lulc(
 					raster.in=temp,
