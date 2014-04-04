@@ -1,10 +1,12 @@
 
-# Prediction
-library(dismo)
-library(gbm)
-# library(tcltk2)
+# Prediction Data
+
+library(raster)
+library(sp)
+
 source('layers.lulc.r')
 source('build.similar.raster.r')
+source('focal.mean.fxns.r')
 startTime <- Sys.time()
 
 # Workspace and parameters
@@ -15,22 +17,24 @@ year <- 2005
 the.radius <- 12070 # 24140 # 48280
 ag.factor <- 4 # 1 # 4
 
-lulc.data <- layers.lulc(
-			file.in=paste(workspace,'/Historical/conus_historical_y',year,'.img',sep=''),
-			the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
-			ag.fact=ag.factor, # NA if no aggregate
-			ag.fun=modal # NA if no aggregate
-			)
+# lulc.data <- layers.lulc(
+			# file.in=paste(workspace,'/Historical/conus_historical_y',year,'.img',sep=''),
+			# the.crop=paste(workspace,'/gp_backcast_1938_1992/gp_lcyear_1992.tif',sep=''),
+			# ag.fact=ag.factor, # NA if no aggregate
+			# ag.fun=modal # NA if no aggregate
+			# )
+# Load brick from multi-band tiff files generated with cbc.sample.lulc.r
+pred.data <- brick()
 
 the.weights <- focalWeight(pred.data, d=the.radius, type='circle')
+the.weights[the.weights > 0] <- 1
+
 pred.data <- unstack(pred.data)
 pred.data.focal <- list()
 
 for (n in 1:length(pred.data))
 {
-	pred.data.focal[[n]] <- focal(pred.data[[n]], w=the.weights)
-	# Need to change this so that NAs are dealt with properly and there's no buffers around NAs.  Use mean.excl.na()
-	
+	pred.data.focal[[n]] <- focal(pred.data[[n]], w=the.weights, fun=mean.exl.na, the.weights=the.weights)
 	cat('done ',n,' ',Sys.time()-startTime,'\n')
 }
 
