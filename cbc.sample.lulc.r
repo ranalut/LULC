@@ -15,7 +15,7 @@ cell.size <- 250
 ag.factors <- c(1,4) # 4 # NA
 do.hist <-		'y'
 do.backcast <-	'y'
-r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey/'
+r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey2/'
 
 # Load and crop pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -27,12 +27,13 @@ cbc <- cbc[is.na(test)==FALSE & test!=0,]
 # stop('cbw')
 
 # Processes
-for (n in 1) #1:2
+for (n in 2) #1:2
 {
 	for (k in 1:2)
 	{
 		the.radius <- the.radii[n]
 		ag.factor <- ag.factors[k]
+		cat('r',the.radius,'factor',ag.factor,'\n')
 		
 		# Historical Data
 		if (do.hist=='y')
@@ -44,7 +45,7 @@ for (n in 1) #1:2
 			{
 				list.name <- paste('y',i,sep='')
 				
-				temp <- raster(paste(workspace,'/historical/gp_lcyear_',i,'.tif',sep=''))
+				temp <- raster(paste(workspace,'/historical/conus_historical_y',i,'.img',sep=''))
 				
 				lulc.data <- layers.lulc(
 					raster.in=temp,
