@@ -2,6 +2,7 @@
 library(dismo)
 library(gbm)
 library(tcltk2)
+library(randomForest)
 
 source('train.test.data.r')
 
@@ -10,11 +11,11 @@ source('train.test.data.r')
 # Workspace and parameters
 drive <- 'z'
 workspace <- paste(drive,':/LULC',sep='')
-the.radii <- c(12070,24140,48280) # 48280 # 24140
+the.radii <- c(12070,24140) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
-ver <- 5
-no.backcast <- 'y'
+ver <- 6
+no.backcast <- 'n'
 
 # Test and training datasets
 n <- 6822 # There are 6822 Records
@@ -26,9 +27,9 @@ spp <- read.csv(paste('z:/lulc/gp_focal_spp_list_v',ver,'.csv',sep=''), stringsA
 
 for (i in 1:21) # 1:11 # 12:21 # length(spp$BBL_ABBREV)) # max is 21
 {
-	for (n in 1) #1:2
+	for (n in 2) #1:2
 	{
-		for (j in 2) #1:2
+		for (j in 1:2) #1:2
 		{
 			the.radius <- the.radii[n]
 			ag.factor <- ag.factors[j]
@@ -40,13 +41,23 @@ for (i in 1:21) # 1:11 # 12:21 # length(spp$BBL_ABBREV)) # max is 21
 			the.data <- pa.bird.data[train.rows,]
 			if (no.backcast=='y') { the.data <- the.data[the.data$count_yr >= 92,] }
 			# print(colnames(the.data)); print(dim(the.data)); stop('cbw')
-			cat('\nnstart BRT,',species)
+			cat('\nnstart model,',species)
 			cat(' points considered...',dim(the.data)[1],'\n')
 			# print(table(the.data$how_many))
-			brt.model <- gbm.step(data=the.data, gbm.x=c(7,12:28), gbm.y=9, family="poisson", tree.complexity=spp$complexity[i], learning.rate=spp$learning.rate[i], bag.fraction=0.5, verbose=FALSE)
-			cat('# trees = ',brt.model$n.trees,'\n')
-			save(brt.model,file=paste(workspace,'/Models/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.',ag.factor*cell.size,'m.rdata',sep=''))
-			cat('\nend BRT',species,'############################\n')
+			
+			# RF
+			the.data$detect <- factor(the.data$detect, levels=c(0,1))
+			rf.model <- randomForest(y=the.data$detect, x=the.data[,c(7,11:27)] , importance=TRUE)
+			# print(rf.model)
+			# print(rf.model$importance)
+			save(rf.model,file=paste(workspace,'/Models/GreatPlains/Distribution/gp.lulc.rf.',ver,'.',species,'.r',the.radius,'m.', ag.factor*cell.size,'m.rdata',sep=''))
+			
+			# BRT
+			# brt.model <- gbm.step(data=the.data, gbm.x=c(7,12:28), gbm.y=9, family="binomial", tree.complexity=spp$complexity[i], learning.rate=spp$learning.rate[i], bag.fraction=0.5, verbose=FALSE)
+			# cat('# trees = ',brt.model$n.trees,'\n')
+			# save(brt.model,file=paste(workspace,'/Models/GreatPlains/Abundance/gp.lulc.brt.',ver,'.',species,'.r',the.radius,'m.', ag.factor*cell.size,'m.rdata',sep=''))
+					
+			cat('\nend model',species,'############################\n')
 			# stop('cbw')
 		}
 	}
