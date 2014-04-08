@@ -11,7 +11,8 @@ workspace <- paste(drive,':/LULC',sep='')
 the.radii <- c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
-no.backcast <- 'y'
+no.backcast <- 'n'
+ver <- 6
 
 # Load and crop CBC pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -29,9 +30,9 @@ cat('all pts in study years',dim(pt.yr),'\n')
 # test <- SpatialPoints(pt.yr[,c('latitude','longitude')])
 # plot(test)
 
-for (n in 1) #1:2
+for (n in 1:2) #1:2
 {
-	for (j in 2) #1:2
+	for (j in 1:2) #1:2
 	{
 	
 		the.radius <- the.radii[n]
@@ -54,7 +55,8 @@ for (n in 1) #1:2
 		cat('all data',dim(all.data),'\n')
 
 		# Loop through species...
-		spp <- read.csv('z:/lulc/gp_focal_spp_list.csv')
+		# spp <- read.csv('z:/lulc/gp_focal_spp_list.csv')
+		spp <- read.csv(paste('z:/lulc/gp_focal_spp_list_v',ver,'.csv',sep=''), stringsAsFactors=FALSE, row.names=1)
 
 		for (i in 1:dim(spp)[1])
 		{
