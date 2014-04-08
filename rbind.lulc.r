@@ -9,7 +9,7 @@ rbind.lulc <- function(lulc.list, years, pts)
 	
 	for (i in 1:length(the.data))
 	{
-		the.data[[i]] <- add.col(in.data=the.data[[i]],ncols=seq(0,17,1))
+		the.data[[i]] <- add.col(in.data=the.data[[i]],ncols=seq(1,17,1))
 	}
 	# stop('cbw')
 	

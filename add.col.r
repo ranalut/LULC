@@ -13,6 +13,9 @@ add.col <- function(in.data,ncols)
 	# cat('test',test,'\n')
 	add.col <- target.names[test==FALSE]
 	cat('add.col',add.col,'\n')
+	
+	if(length(add.col)==0) { return(in.data) }
+	
 	empty.cols <- data.frame(matrix(rep(0,length(add.col)*dim(in.data)[1]),ncol=length(add.col)))
 	colnames(empty.cols) <- add.col
 	empty.cols <- as.list(empty.cols)
