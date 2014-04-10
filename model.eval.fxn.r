@@ -25,26 +25,43 @@ model.eval.abund <- function(the.model, covariates, obs, spp)
 	return(list(dev.exp.cv, dev.exp.test, cor.cv, cor.test))
 }
 
-
-model.eval.binary <- function(the.model, covariates, test.cov)
+model.eval.binary <- function(the.model, covariates, test.cov, n.trees=NA)
 {
 	# Threshold
-	train.pred <- predict(the.model, newdata=covariates, type='prob')
-	thresh.table <- data.frame(seq(1,dim(covariates)[2],1),covariates[,c('detect')],train.pred[,2])
-	# thresh.table$detect <- as.numeric(thresh.table$detect) - 1
+	if (is.na(n.trees)==FALSE) 
+	{
+		train.pred <- predict(the.model, newdata=covariates, type='response',n.trees=n.trees)
+		temp <- train.pred
+	}
+	else 
+	{
+		train.pred <- predict(the.model, newdata=covariates, type='prob')
+		temp <- as.numeric(train.pred[,2])
+	}
+	thresh.table <- data.frame(sites=seq(1,dim(covariates)[1],1),obs=covariates[,c('detect')],pred=temp)
+	# print(head(thresh.table)); print(table(thresh.table$obs))
 	auc <- auc(thresh.table) 
 	print(auc)
+	auc.roc.plot(thresh.table)
 	thresh.optim <- optimal.thresholds(DATA=thresh.table, opt.methods=c('Sens=Spec','MaxKappa','ReqSpec'),req.spec=1)
-	print(thresh.optim)
+	# print(thresh.optim)
 	cutoff <- thresh.optim[2,2] # Choose the max kappa threshold
+	cat('cutoff... ',cutoff,'\n')
+	thresh.table$pred <- ifelse(as.numeric(thresh.table$pred) >= cutoff,1,0) 
+	conf.matrix.train <- table(thresh.table[,2:3])
 	
 	# Test Data
-	test.pred <- predict(the.model, newdata=test.cov, type='prob')
-	test.pred <- as.data.frame(test.pred)
-	test.pred$pred <- ifelse(as.numeric(test.pred[,2]) >= cutoff,1,0)
-	test.pred$obs <- as.numeric(test.cov[,'detect']) - 1
-	conf.matrix <- table(test.pred[,3:4])
-	print(conf.matrix)
+	if (is.na(n.trees)==FALSE) { test.pred <- predict(the.model, newdata=test.cov, type='response', n.trees=n.trees) }
+	else { test.pred <- predict(the.model, newdata=test.cov, type='prob') }
+	
+	if (is.vector(test.pred)==TRUE)	{ temp <- test.pred }
+	else { temp <- as.numeric(test.pred[,2]) }
+	test.pred <- data.frame(data=temp)
+	
+	test.pred$pred <- ifelse(test.pred$data >= cutoff,1,0)
+	test.pred$obs <- as.numeric(test.cov[,'detect'])
+	conf.matrix.test <- table(test.pred[,c('pred','obs')])
+	print(conf.matrix.test)
 
-	return(list(auc,cutoff,conf.matrix))
+	return(list(round(auc[1],3),cutoff,conf.matrix.train, conf.matrix.test))
 }
