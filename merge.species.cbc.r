@@ -12,7 +12,8 @@ the.radii <- c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
 no.backcast <- 'n'
-ver <- 6
+single.yr <- 105 #NA
+ver <- 7
 
 # Load and crop CBC pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -66,18 +67,21 @@ for (n in 1:2) #1:2
 
 			# First add the species count data
 			pa.bird.data <- merge(pt.yr,bird.data,by=c('abbrev','count_yr'),all.x=TRUE)
-			print(dim(pa.bird.data))
+			# print(dim(pa.bird.data))
 			pa.bird.data$how_many[is.na(pa.bird.data$how_many)==TRUE] <- 0
 			pa.bird.data$detect[is.na(pa.bird.data$detect)==TRUE] <- 0
 
 			# Second add LULC data
+			if (is.na(single.yr)==FALSE) { pa.bird.data$count_yr <- rep(single.yr,length(pa.bird.data$count_yr)) }
 			pa.bird.data <- merge(pa.bird.data, all.data, by=c('abbrev','count_yr'),all.x=TRUE)
-			print(dim(pa.bird.data))
+			# print(dim(pa.bird.data)); print(head(pa.bird.data)); stop('cbw')
 			
 			# Save for building models in the next step
-			save(pa.bird.data, file=paste(workspace,'/Species/gp.lulc.',species,'.r',the.radius,'m.',cell.size*ag.factor,'m.rdata',sep=''))
+			save(pa.bird.data, file=paste(workspace,'/Species/gp.lulc.',ver,'.',species,'.r',the.radius,'m.',cell.size*ag.factor,'m.rdata',sep=''))
 			# stop('cbw')
+			cat(species,' ')
 		}
+	cat('\n')
 	}
 }
 
