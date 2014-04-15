@@ -14,8 +14,8 @@ workspace <- paste(drive,':/LULC',sep='')
 the.radii <- c(12070,24140) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
-ver <- 7
-no.backcast <- 'n'
+ver <- 8
+no.backcast <- 'y'
 type <- 'brt'
 
 # Test and training datasets
@@ -28,7 +28,7 @@ spp <- read.csv(paste('z:/lulc/gp_focal_spp_list_v',ver,'.csv',sep=''), stringsA
 
 for (n in 1) #1:2
 {
-	for (j in 1) #1:2
+	for (j in 1:2) #1:2
 	{
 		for (i in 1:21) # 1:11 # 12:21 # length(spp$BBL_ABBREV)) # max is 21
 		{
