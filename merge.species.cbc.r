@@ -11,9 +11,9 @@ workspace <- paste(drive,':/LULC',sep='')
 the.radii <- c(12070,24140,48280) # 48280 # 24140
 cell.size <- 250
 ag.factors <- c(1,4) # 1 # 4
-no.backcast <- 'n'
-single.yr <- 105 #NA
-ver <- 7
+no.backcast <- 'y'
+single.yr <- NA # 105 #NA
+ver <- 8
 
 # Load and crop CBC pts.
 cbc <- readOGR(dsn=workspace,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -31,7 +31,7 @@ cat('all pts in study years',dim(pt.yr),'\n')
 # test <- SpatialPoints(pt.yr[,c('latitude','longitude')])
 # plot(test)
 
-for (n in 1:2) #1:2
+for (n in 1) #1:2
 {
 	for (j in 1:2) #1:2
 	{
