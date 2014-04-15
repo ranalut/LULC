@@ -30,6 +30,9 @@ cat('all pts in study area',dim(pt.yr),'\n')
 pt.yr <- pt.yr[pt.yr$count_yr <= 105 & pt.yr$count_yr >= 66,]
 cat('all pts in study years',dim(pt.yr),'\n')
 
+conus.names <- scan('z:/lulc/legend_conus.txt',what=character(), sep=',')
+conus.names <- conus.names[seq(2,34,2)]
+
 last.minus.first <- function(x) { out <- x[length(x)] - x[1]; return(out) }
 
 for (n in 1) #1:2
@@ -59,8 +62,10 @@ for (n in 1) #1:2
 	
 		target.pts <- unique(pt.yr$abbrev)
 		boxplot.data <- data.frame(matrix(rep(NA,17),ncol=17))
-		colnames(boxplot.data) <- paste('X',seq(1,17,1),sep='')
+		colnames(boxplot.data) <- conus.names # paste('X',seq(1,17,1),sep='')
 		# print(boxplot.data)
+		boxplot.data.2 <- data.frame(matrix(rep(NA,17),ncol=17))
+		colnames(boxplot.data.2) <- conus.names # paste('X',seq(1,17,1),sep='')
 		
 		for (kk in 1:length(target.pts))
 		{
@@ -68,11 +73,33 @@ for (n in 1) #1:2
 			# print(temp)
 			boxplot.data[kk,] <- apply(temp[,3:19],2,last.minus.first)
 			# print(boxplot.data)
+			boxplot.data.2[kk,] <- temp[dim(temp)[1],3:19]
 			# stop('cbw')
 		}
 		
-		boxplot(boxplot.data)
-		stop('cbw')
+		all.change <- read.csv('z:/lulc/plots/gp.lulc.all.change.csv',header=TRUE,row.names=1)
 		
+		png(paste(workspace,'/Plots/gp.lulc.change.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.png',sep=''),res=120,pointsize=10)
+			par(mar=c(4,10,1,1))
+			boxplot(boxplot.data, horizontal=TRUE, yaxt='n',xlab='Change in percent coverage 1966-2005',main='Temporal Variation')
+			# text(labels=conus.names, x=rep(-0.4,length(conus.names)),y=seq(1,length(conus.names)),pos=2)
+			axis(side=2, at = seq(1,length(conus.names)), labels = conus.names, tick = FALSE, las=1)
+			points(x=all.change$change, y=seq(1,17,1),pch=4,col='red3',lwd=2)
+		dev.off()
+				
+		png(paste(workspace,'/Plots/gp.lulc.coverage.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.png',sep=''),res=120,pointsize=10)
+			par(mar=c(4,10,1,1))
+			boxplot(boxplot.data.2, horizontal=TRUE, yaxt='n',xlab='Percent coverage 2005',main='Spatial Variation')
+			# text(labels=conus.names, x=rep(-0.4,length(conus.names)),y=seq(1,length(conus.names)),pos=2)
+			axis(side=2, at = seq(1,length(conus.names)), labels = conus.names, tick = FALSE, las=1)
+			points(x=all.change$proportion.x, y=seq(1,17,1),pch=4,col='red3',lwd=2)
+		dev.off()
+		# stop('cbw')
+		
+		area <- pi*the.radius^2
+		temp <- boxplot.data * area
+		cbc.change <- apply(temp,2,sum)
+		cbc.change <- round(cbc.change / (dim(boxplot.data)[1] * area),4)
+		write.csv(cbc.change,paste(workspace,'/Plots/gp.lulc.change.',cell.size*ag.factor,'m.cbc.r',the.radius,'m.csv',sep=''))
 	}
 }
