@@ -1,3 +1,5 @@
+# Functions
+source('lm.and.offset.model.r')
 
 # Workspace and parameters
 drive <- 'z'
@@ -15,6 +17,7 @@ comparison <- 'clim.lulc.92' # 'temporal.3' #'temporal' # 'temporal.2' # 'tempor
 # comp.var <- c('1966-2005, only 2005 LULC','1992-2005, annual matching LULC')
 # comp.var <- c('1966-2005, annual matching LULC','1966-2005, annual matching BIOCLIM')
 comp.var <- c('1992-2005, annual matching LULC','1992-2005, annual matching BIOCLIM')
+
 data.1 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.brt.eval.8.r12070m.250m.csv',sep=''),header=TRUE,row.names=1)
 data.1[,5:8] <- data.1[,5:8]/100
 data.2 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.bioclim.brt.eval.8.92.csv',sep=''),header=TRUE,row.names=1)
@@ -48,6 +51,10 @@ png(paste(workspace,'/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.x
 		plot(temp[,1:2],xlab=comp.var[1],ylab=comp.var[2],main=var.names[i],xlim=c(0,1),ylim=c(0,1)) #, ylim=c(0,1.15), legend.text=comp.var, args.legend=list(x=dim(data.1)[1]*3,y=1.2,bty='n',horiz=TRUE), beside=TRUE, ylab=variables[i])
 		abline(a=0,b=1)
 		# text(x=1,y=1.1,pos=4,labels=var.names[i],cex=1.5)
+		
+		models <- lm.and.offset.models(the.data=temp[,1:2])
+		abline(a=0,b=as.numeric(coef(models[[1]])),lty=3)
+		if (anova(models[[2]])[1,5] < 0.05) { text(x=1,y=0.05,labels='*',cex=2) }
 	}
 dev.off()	
 
@@ -62,6 +69,10 @@ png(paste(workspace,'/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.x
 		plot(temp[c('FEHA','LEOW','NOHA','PRFA','AMKE','RTHA','GHOW','RLHA'),1:2],xlab=comp.var[1],ylab=comp.var[2],main=var.names[i],xlim=c(0,1),ylim=c(0,1)) #, ylim=c(0,1.15), legend.text=comp.var, args.legend=list(x=dim(data.1)[1]*3,y=1.2,bty='n',horiz=TRUE), beside=TRUE, ylab=variables[i])
 		abline(a=0,b=1)
 		# text(x=1,y=1.1,pos=4,labels=var.names[i],cex=1.5)
+		
+		models <- lm.and.offset.models(the.data=temp[,1:2])
+		abline(a=0,b=as.numeric(coef(models[[1]])),lty=3)
+		if (anova(models[[2]])[1,5] < 0.05) { text(x=1,y=0.05,labels='*',cex=2) }
 	}
 dev.off()	
 
@@ -76,6 +87,10 @@ png(paste(workspace,'/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.x
 		plot(temp[c('SMLO','MCLO','LARB','CCLO','LALO','SNBU'),1:2],xlab=comp.var[1],ylab=comp.var[2],main=var.names[i],xlim=c(0,1),ylim=c(0,1)) #, ylim=c(0,1.15), legend.text=comp.var, args.legend=list(x=dim(data.1)[1]*3,y=1.2,bty='n',horiz=TRUE), beside=TRUE, ylab=variables[i])
 		abline(a=0,b=1)
 		# text(x=1,y=1.1,pos=4,labels=var.names[i],cex=1.5)
+		
+		models <- lm.and.offset.models(the.data=temp[,1:2])
+		abline(a=0,b=as.numeric(coef(models[[1]])),lty=3)
+		if (anova(models[[2]])[1,5] < 0.05) { text(x=1,y=0.05,labels='*',cex=2) }
 	}
 dev.off()	
 	
