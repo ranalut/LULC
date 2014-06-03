@@ -22,7 +22,7 @@ output <- data.frame(matrix(rep(NA,dim(spp)[1]*4),ncol=4))
 colnames(output) <- c('train.0','train.1','test.0','test.1')
 rownames(output) <- spp$BBL_ABBREV
 
-prev <- function(x) { return(round(x[2]/sum(x),3)) }
+prev <- function(x) { return(round(x[2]/sum(x),3)) } # Prevalence.
 
 for (n in 1) #1:2
 {
