@@ -1,21 +1,23 @@
 
 # Workspace and parameters
 drive <- 'z'
-# workspace <- paste(drive,':/LULC',sep='')
+workspace <- paste(drive,':/LULC',sep='')
 # the.radii <- c(12070,24140)
 # cell.size <- 250
 # ag.factors <- c(1,4)
 # no.backcast <- 'n'
 # type <- 'brt'
 
-comparison <- 'temporal.3' #'temporal' # 'temporal.2' # 'temporal' # 'resolution' # 'radius'
+comparison <- 'clim.lulc.92' # 'temporal.3' #'temporal' # 'temporal.2' # 'temporal' # 'resolution' # 'radius'
 # comp.var <- c('12070m','24140m') # c('12km','24km')
 # comp.var <- c('1966-2005, annual matching LULC','1966-2005, only 2005 LULC')
 # comp.var <- c('1966-2005, annual matching LULC','1992-2005, annual matching LULC')
-comp.var <- c('1966-2005, only 2005 LULC','1992-2005, annual matching LULC')
-data.1 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.brt.eval.7.r12070m.250m.csv',sep=''),header=TRUE,row.names=1)
+# comp.var <- c('1966-2005, only 2005 LULC','1992-2005, annual matching LULC')
+# comp.var <- c('1966-2005, annual matching LULC','1966-2005, annual matching BIOCLIM')
+comp.var <- c('1992-2005, annual matching LULC','1992-2005, annual matching BIOCLIM')
+data.1 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.brt.eval.8.r12070m.250m.csv',sep=''),header=TRUE,row.names=1)
 data.1[,5:8] <- data.1[,5:8]/100
-data.2 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.lulc.brt.eval.8.r12070m.250m.csv',sep=''),header=TRUE,row.names=1)
+data.2 <- read.csv(paste(drive,':/LULC/Models/GreatPlains/Distribution/EvaluationTables/gp.bioclim.brt.eval.8.92.csv',sep=''),header=TRUE,row.names=1)
 data.2[,5:8] <- data.2[,5:8]/100
 
 variables <- c('kappa','dev.exp.test','test.om','test.co')
