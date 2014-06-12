@@ -32,8 +32,8 @@ pt.yr <- pt.yr[pt.yr$abbrev %in% cbc@data$abbrev,]
 cat('all pts in study area',dim(pt.yr),'\n')
 pt.yr <- pt.yr[pt.yr$count_yr <= 105 & pt.yr$count_yr >= 92,] # CONUS LULC only available post 1992.
 cat('all pts in study years',dim(pt.yr),'\n')
-# test <- SpatialPoints(pt.yr[,c('longitude','latitude')])
-# plot(test); stop('cbw')
+test <- SpatialPoints(pt.yr[,c('longitude','latitude')])
+plot(test); stop('cbw')
 
 # Load BIOCLIM data
 load(paste(data.d,'/Maurer2010Historical/maurer.hist.cbc.bioclim.rdata',sep='')) # Called hist.bioclim
