@@ -17,7 +17,7 @@ ag.factors <- 1 # c(1,4) # 4 # NA
 do.hist <-	'y'
 layerize.on <- 'n'
 sample.on <- 'y'
-r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey3/'
+r.raster.temp <- 'C:/Users/cwilsey/AppData/Local/Temp/R_raster_cwilsey2/'
 
 # Load and crop pts.
 cbc <- readOGR(dsn=data.z,layer='CBC_circles_alb',encoding='ESRI Shapefile')
@@ -40,7 +40,7 @@ for (k in 1)
 	{
 		rasterOptions(tmpdir=r.raster.temp) 
 		
-		for (i in 2002:2005) # 92-96, 97-01, 02-05 #1992:2005
+		for (i in 1997:2005) # 92-96, 97-01, 02-05 #1992:2005
 		{
 			list.name <- paste('y',i,sep='')
 			
