@@ -31,24 +31,29 @@ if (create.zones=='n')
 	zg2 <- cbind(matrix(NA,ncol=421,nrow=dim(zone.grid)[1]),zone.grid,matrix(NA,ncol=202,nrow=dim(zone.grid)[1]))
 	zg2 <- rbind(matrix(NA,ncol=dim(zg2)[2],nrow=396),zg2,matrix(NA,ncol=dim(zg2)[2],nrow=4))
 	
-	lookup.table <- data.frame(lookup.table,s.grid=as.vector(zg2))
+	lookup.table <- data.frame(lookup.table,zone=as.vector(zg2))
 	write.csv(lookup.table, 'd:/strongholds/lookup.table.csv')
 	
 	stop('cbw')
 }
 
-startTime <- Sys.time()
 # Reprojected strongholds grid
 zones <- raster('d:/strongholds/zones_raster2.tif')
 
 # LULC data
 lulc.brick <- brick('d:/lulc/historical/conus.lulc.brick.r250m.y2005.tif')
 
-# Crop
-# zones <- crop(zones, lulc.brick, snap='out')
-
+startTime <- Sys.time()
 zonal.mean.mat <- zonal(lulc.brick, zones, fun='mean', digits=4, na.rm=TRUE) # This took 4.45 hours.
 write.csv(zonal.mean.mat, 'd:/strongholds/lulc.strong.2005.csv')
 print(Sys.time() - startTime)
+
+output <- merge(lookup.table, zonal.mean.mat, all.x=TRUE)
+output <- output[order(output$strong),]
+output$score <- as.vector(as.matrix(strong))
+write.csv(output, 'd:/strongholds/lulc.strong.2005.full.csv')
+
+
+
 stop('cbw')
 
